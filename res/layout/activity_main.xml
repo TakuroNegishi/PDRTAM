@@ -40,14 +40,7 @@
             android:layout_toEndOf="@+id/reset_btn"
             android:text="@string/view3d" />
 
-        <hosei.negishi.pdrtam.ATAMView
-            android:id="@+id/atamView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_toEndOf="@+id/change_btn"/>
-
-        <hosei.negishi.pdrtam.CustomCameraView
+        <hosei.negishi.pdrtam.view.CustomCameraView
             android:id="@+id/customizableCameraView1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -65,6 +58,7 @@
             android:layout_above="@+id/view3d_btn"
             android:layout_alignParentStart="true"
             android:layout_toEndOf="@+id/reset_btn"
-            android:text="@string/take_pic" />
+            android:text="@string/take_pic"
+            android:visibility="invisible" />
 
 </RelativeLayout>

@@ -478,16 +478,16 @@ void CATAM::exportPoint3()
 //		fclose(fp);
 //	}
 
-//    time_t now = time(NULL);
-//    struct tm *pnow = localtime(&now);
+    time_t now = time(NULL);
+    struct tm *pnow = localtime(&now);
 
-//	char buff[128]="";
-//	sprintf(buff, "/storage/emulated/legacy/negishi.deadreckoning/%d;%d;%d.txt", pnow->tm_hour,pnow->tm_min,pnow->tm_sec);
-//	LOGE("%s", buff);
+	char buff[128]="";
+	sprintf(buff, "/storage/emulated/legacy/negishi.deadreckoning/%d;%d;%d.txt", pnow->tm_hour,pnow->tm_min,pnow->tm_sec);
+	LOGE("%s", buff);
 
 	std::vector<cv::Point3f> vvv = mData.map.GetAllPoint();
-//	std::ofstream ofs(buff);
-	std::ofstream ofs("/storage/emulated/legacy/negishi.deadreckoning/test.txt");
+	std::ofstream ofs(buff);
+//	std::ofstream ofs("/storage/emulated/legacy/negishi.deadreckoning/test.txt");
 
 	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "(%f, %f, %f)", vvv[0].x, vvv[0].y, vvv[0].z);
 	for (int i = 0; i < vvv.size(); i++) {
