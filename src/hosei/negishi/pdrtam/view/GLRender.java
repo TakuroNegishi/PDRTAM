@@ -46,6 +46,7 @@ public class GLRender implements GLSurfaceView.Renderer {
 	int screenH;
 
 	public GLRender() {
+		originalVertex = new float[0];
 		eye = new Vector3D(30.0f, 30.0f, 30.0f);
 		center = new Vector3D(0.0f, 0.0f, 0.0f);
 		rotate = new Vector3D(0.0f, 0.0f, 0.0f);

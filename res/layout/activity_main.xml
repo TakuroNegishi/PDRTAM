@@ -61,4 +61,13 @@
             android:text="@string/take_pic"
             android:visibility="invisible" />
 
+        <hosei.negishi.pdrtam.view.CustomGLSurfaceView
+            android:id="@+id/customGLSurfaceView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/log_text"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/customizableCameraView1" />
+
 </RelativeLayout>

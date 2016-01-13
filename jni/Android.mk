@@ -25,6 +25,7 @@ LOCAL_SRC_FILES += PointDetector.cpp
 LOCAL_SRC_FILES += Calibration.cpp
 LOCAL_SRC_FILES += ATAMData.cpp
 LOCAL_SRC_FILES += ATAM.cpp
+LOCAL_SRC_FILES += GLRender.cpp
 LOCAL_C_INCLUDES += $(LOCAL_PATH)
 LOCAL_STATIC_LIBRARIES  =  ceres
 LOCAL_LDLIBS := -llog -ldl

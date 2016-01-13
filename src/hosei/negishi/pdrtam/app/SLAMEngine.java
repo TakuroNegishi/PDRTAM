@@ -6,34 +6,35 @@ import org.opencv.android.CameraBridgeViewBase;
 
 public class SLAMEngine {
 	private CvCameraManager cameraManager;
-	private ATAMNative atam;
+//	private NativeAccesser atam;
 	
 	public SLAMEngine(MainActivity activity) {
-		atam = new ATAMNative();
-		cameraManager = new CvCameraManager(activity, atam, (CameraBridgeViewBase) activity.findViewById(R.id.customizableCameraView1));
+//		atam = new NativeAccesser();
+		NativeAccesser.getInstance(); // インスタンス生成
+		cameraManager = new CvCameraManager(activity, (CameraBridgeViewBase) activity.findViewById(R.id.customizableCameraView1));
 	}
 	
 	public void changeState() {
-		atam.changeState();
+		NativeAccesser.getInstance().changeState();
 	}
 	
 	public void reset() {
-		atam.setReset();
+		NativeAccesser.getInstance().setReset();
 	}
 	
 	public void stop() {
-		atam.setStop();
+		NativeAccesser.getInstance().setStop();
 	}
 	
 	public void saveImage() {
 		cameraManager.saveImageMat();
 	}
 	
-	public float[] getPoints3D() {
-		float[] pointAry = new float[atam.getPointLength()];
-		atam.getPointAry(pointAry.length, pointAry);
-		return pointAry;
-	}
+//	public float[] getPoints3D() {
+//		float[] pointAry = new float[NativeAccesser.getInstance().getPointLength()];
+//		NativeAccesser.getInstance().getPointAry(pointAry.length, pointAry);
+//		return pointAry;
+//	}
 	
 	public void onResume() {
 		cameraManager.onResume();	// カメラ開始

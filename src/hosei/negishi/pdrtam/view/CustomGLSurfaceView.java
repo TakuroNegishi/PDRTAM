@@ -2,26 +2,33 @@ package hosei.negishi.pdrtam.view;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
 public class CustomGLSurfaceView extends GLSurfaceView implements
 		OnScaleGestureListener {
-
+	
 	private ScaleGestureDetector mScaleDetector;
-	private GLRender glRender;
+	private GLRenderNative glRenderNative;
 
 	public CustomGLSurfaceView(Context context) {
 		super(context);
 		mScaleDetector = new ScaleGestureDetector(context, this);
-		glRender = new GLRender();
-		setRenderer(glRender);
+		glRenderNative = new GLRenderNative();
+		setRenderer(glRenderNative);
+	}
+	
+	public CustomGLSurfaceView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		mScaleDetector = new ScaleGestureDetector(context, this);
+		glRenderNative = new GLRenderNative();
+		setRenderer(glRenderNative);
 	}
 
 	public void setVertex(float[] vertex) {
-		glRender.setVertex(vertex);
+//		glRender.setVertex(vertex);
 	}
 
 	@Override
@@ -32,14 +39,13 @@ public class CustomGLSurfaceView extends GLSurfaceView implements
 			
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-				glRender.onTouchDown(x, y);
+//				glRender.onTouchDown(x, y);
 				break;
 			case MotionEvent.ACTION_MOVE:
-				glRender.onTouchMove(x, y, event.getDownTime(),
-						event.getEventTime());
+//				glRender.onTouchMove(x, y, event.getDownTime(), event.getEventTime());
 				break;
 			case MotionEvent.ACTION_UP:
-				glRender.onTouchUp(x, y);
+//				glRender.onTouchUp(x, y);
 				performClick(); // どっかでperformClick()を呼ばないとworningが出る
 				break;
 			}
@@ -51,7 +57,7 @@ public class CustomGLSurfaceView extends GLSurfaceView implements
 
 	@Override
 	public boolean onScale(ScaleGestureDetector detector) {
-		glRender.onScale(detector.getScaleFactor());
+//		glRender.onScale(detector.getScaleFactor());
 //		Log.e("", "onScale() " + detector.getScaleFactor());
 		return true;
 	}
@@ -70,5 +76,10 @@ public class CustomGLSurfaceView extends GLSurfaceView implements
 	public boolean performClick() {
 		super.performClick();
 		return true;
+	}
+	
+	public void dispose() {
+//		glRender.dispose();
+		glRenderNative = null;
 	}
 }

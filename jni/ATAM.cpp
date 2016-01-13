@@ -478,18 +478,20 @@ void CATAM::exportPoint3()
 //		fclose(fp);
 //	}
 
+	std::vector<cv::Point3f> vvv = mData.map.GetAllPoint();
+	if (vvv.size() < 1) return; // 点群情報が無ければファイル出力無し
+
     time_t now = time(NULL);
     struct tm *pnow = localtime(&now);
 
 	char buff[128]="";
-	sprintf(buff, "/storage/emulated/legacy/negishi.deadreckoning/%d;%d;%d.txt", pnow->tm_hour,pnow->tm_min,pnow->tm_sec);
+	sprintf(buff, "/storage/emulated/legacy/negishi.deadreckoning/%04d-%02d-%02d_%02d;%02d;%02d.txt",
+			pnow->tm_year + 1900, pnow->tm_mon + 1, pnow->tm_mday, pnow->tm_hour, pnow->tm_min, pnow->tm_sec);
 	LOGE("%s", buff);
 
-	std::vector<cv::Point3f> vvv = mData.map.GetAllPoint();
 	std::ofstream ofs(buff);
-//	std::ofstream ofs("/storage/emulated/legacy/negishi.deadreckoning/test.txt");
 
-	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "(%f, %f, %f)", vvv[0].x, vvv[0].y, vvv[0].z);
+//	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "(%f, %f, %f)", vvv[0].x, vvv[0].y, vvv[0].z);
 	for (int i = 0; i < vvv.size(); i++) {
 //		pointAry[(i*3) + 0] = vvv[i].x;
 //		pointAry[(i*3) + 1] = vvv[i].y;
@@ -499,9 +501,7 @@ void CATAM::exportPoint3()
 
 //		__android_log_print(ANDROID_LOG_ERROR, __FILE__, "p[%d](%f, %f, %f)", i, vvv[i].x, vvv[i].y, vvv[i].z);
 	}
-	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "(%f, %f, %f)", vvv[vvv.size()-1].x, vvv[vvv.size()-1].y, vvv[vvv.size()-1].z);
-//	LOGE("size = %d", vvv.size());
-//	ofs << "test_message." << std::endl;
+//	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "(%f, %f, %f)", vvv[vvv.size()-1].x, vvv[vvv.size()-1].y, vvv[vvv.size()-1].z);
 }
 
 /*!

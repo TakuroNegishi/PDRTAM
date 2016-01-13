@@ -37,14 +37,13 @@ public class CvCameraManager implements CvCameraViewListener2 {
 	
 	private Mat mRgba;
 	private Context context;
-	private ATAMNative mAtam;
+//	private NativeAccesser mAtam;
 	
 	private final double MIN_FPS = 30.0;
 	private final double MAX_FPS = 30.0;
 	
-	public CvCameraManager(Context context, ATAMNative atam, CameraBridgeViewBase camera) {
+	public CvCameraManager(Context context, CameraBridgeViewBase camera) {
 		this.context = context;
-		mAtam = atam;
 		cameraView = camera;
 		cameraView.setMaxFrameSize(Config.IMAGE_WIDTH, Config.IMAGE_HEIGHT);
 		cameraView.setCvCameraViewListener(this);
@@ -53,7 +52,7 @@ public class CvCameraManager implements CvCameraViewListener2 {
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		mRgba = inputFrame.rgba();
-		mAtam.mainProc(mRgba);
+		NativeAccesser.getInstance().mainProc(mRgba);
 		return mRgba;
 	}
 	

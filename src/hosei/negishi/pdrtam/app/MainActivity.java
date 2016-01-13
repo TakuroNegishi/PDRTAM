@@ -59,14 +59,15 @@ public class MainActivity extends Activity implements OnClickListener,
 		// ステータスバー非表示
 		// requestWindowFeature(Window.FEATURE_NO_TITLE); // タイトルバー非表示
 
-		appMode = AppMode.CAMERA_PREVIEW;
+		appMode = AppMode.TAM;
 		setContentView(R.layout.activity_main);
-		initSLAM();
+		initTAMMode();
 		initButtons();
 	}
 
-	private void initSLAM() {
+	private void initTAMMode() {
 		slam = new SLAMEngine(this);
+		glSurfaceView = (CustomGLSurfaceView)findViewById(R.id.customGLSurfaceView);
 	}
 
 	public void initButtons() {
@@ -81,47 +82,50 @@ public class MainActivity extends Activity implements OnClickListener,
 	}
 
 	public void init3DViewer() {
+		glSurfaceView.onPause();
+//		glSurfaceView = null;
 		glSurfaceView = new CustomGLSurfaceView(this);
-		// glSurfaceView.setEGLConfigChooser(true); // Depth有効
 	}
 
 	public void start3DViewer() {
-		appMode = AppMode.MAP_VIEW;
+		appMode = AppMode.OBSERVATION;
 		setContentView(glSurfaceView);
 		glSurfaceView.onResume();
 	}
 
-	public void stop3DViewer() {
-		appMode = AppMode.CAMERA_PREVIEW;
-		setContentView(R.layout.activity_main);
-		glSurfaceView.onPause();
-	}
-
+//	public void stop3DViewer() {
+//		appMode = AppMode.CAMERA_PREVIEW;
+//		setContentView(R.layout.activity_main);
+//		glSurfaceView.onPause();
+//	}
+//
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (appMode == AppMode.MAP_VIEW)
-			glSurfaceView.onResume();
-		// 非同期でライブラリの読み込み/初期化を行う
-		// static boolean initAsync(String Version, Context AppContext,
-		// LoaderCallbackInterface Callback)
-		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this,
-				mLoaderCallback);
-		// OpenCVライブラリロード終了次第slam.onResume()でATAM開始
+		glSurfaceView.onResume();
+		if (appMode == AppMode.TAM) {
+			// 非同期でライブラリの読み込み/初期化を行う
+			// static boolean initAsync(String Version, Context AppContext,
+			// LoaderCallbackInterface Callback)
+			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this,
+					mLoaderCallback);
+			// OpenCVライブラリロード終了次第slam.onResume()でATAM開始
+		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (appMode == AppMode.MAP_VIEW)
-			glSurfaceView.onPause();
-		else if (appMode == AppMode.CAMERA_PREVIEW)
+		glSurfaceView.onPause();
+		if (appMode == AppMode.TAM)
 			slam.onPause();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		glSurfaceView.dispose();
+		glSurfaceView = null;
 //		slam.onPause();
 	}
 
@@ -176,15 +180,13 @@ public class MainActivity extends Activity implements OnClickListener,
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) { // Androidの戻るボタン押下→終了ダイアログ
-			switch (appMode) {
-			case MAP_VIEW:
-				// カメラ再開
-				showFinishDialog();
-				break;
-			case CAMERA_PREVIEW:
-				showFinishDialog();
-				break;
-			}
+			showFinishDialog();
+
+//			switch (appMode) {
+//			case TAM:
+//				showFinishDialog();
+//				break;
+//			}
 			return true;
 		}
 		return false;
