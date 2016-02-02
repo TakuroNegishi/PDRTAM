@@ -6,7 +6,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 #include "ATAM.h"
-#include "GLRender.h"
 
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, __FILE__, __VA_ARGS__))
 
@@ -15,7 +14,6 @@ using namespace cv;
 
 extern "C" {
 CATAM atam;
-GLRender glRender;
 
 JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_initNative(JNIEnv *env, jobject thiz);
 JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_mainProcNative(JNIEnv *env, jobject thiz, jlong addrRgba);
@@ -25,9 +23,6 @@ JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_setResetNati
 JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_getPointAryNative(JNIEnv *env, jobject thiz, jint num, jfloatArray retObj);
 JNIEXPORT jint JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_getPointLengthNative(JNIEnv *env, jobject thiz);
 
-JNIEXPORT jint JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_getPointLengthNative(JNIEnv *env, jobject thiz);
-JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_onSurfaceChangedNative(JNIEnv *env, jobject thiz, jint width, jint height);
-JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_onDrawFrameNative(JNIEnv *env, jobject thiz);
 
 
 JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_initNative(JNIEnv *env, jobject thiz) {
@@ -64,31 +59,13 @@ JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_getPointAryN
 	for (int i = 0; i < count*3; i++) {
 		ret[i] = pointAry[i];
 	}
-	atam.setReset();
+//	atam.setReset();
 
-//	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "count= %d \n", count);
-//	__android_log_print(ANDROID_LOG_ERROR, __FILE__, "size= %d \n", size);
-
-//	return pointAry;
 	env->ReleaseFloatArrayElements(retObj, ret, 0);
 }
 
 JNIEXPORT jint JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_getPointLengthNative(JNIEnv *env, jobject thiz) {
 	return atam.getPoint3Length();
-}
-
-// GLRender
-JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_onSurfaceCreatedNative(JNIEnv *env, jobject thiz) {
-//	glRenderer = new GLRenderer();
-	glRender.onSurfaceCreated();
-}
-
-JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_onSurfaceChangedNative(JNIEnv *env, jobject thiz, jint width, jint height) {
-	glRender.onSurfaceChanged((int)width, (int)height);
-}
-
-JNIEXPORT void JNICALL Java_hosei_negishi_pdrtam_app_NativeAccesser_onDrawFrameNative(JNIEnv *env, jobject thiz)  {
-	glRender.onDrawFrame();
 }
 
 }

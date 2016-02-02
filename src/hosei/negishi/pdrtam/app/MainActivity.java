@@ -15,11 +15,8 @@ import org.opencv.android.OpenCVLoader;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -139,7 +136,6 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 		case R.id.change_btn:
 			slam.changeState();
-			// saveImageMat(mRgba);
 			break;
 		case R.id.reset_btn:
 			slam.reset();

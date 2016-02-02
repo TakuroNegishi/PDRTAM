@@ -101,10 +101,10 @@ bool CATAM::init(void)
 
 	// TODO カメラパラメータ初期化
 	mData.A = cv::Mat_<double>::zeros(3, 3);
-	mData.A.at<double>(0, 0) = 660.179810;
-	mData.A.at<double>(1, 1) = 660.198608;
-	mData.A.at<double>(2, 0) = 326.028229;
-	mData.A.at<double>(2, 1) = 231.445267;
+	mData.A.at<double>(0, 0) = 660.179810; // fx
+	mData.A.at<double>(1, 1) = 660.198608; // fy
+	mData.A.at<double>(2, 0) = 326.028229; // cx
+	mData.A.at<double>(2, 1) = 231.445267; // cy
 	mData.A.at<double>(2, 2) = 1.0;
 	mData.D = cv::Mat_<double>::zeros(5, 1);
 //	mData.D.at<double>(0, 0) = 0.16139144964820315;
@@ -463,7 +463,7 @@ void CATAM::getPoint3Float (float *pointAry)
 
 int CATAM::getPoint3Length()
 {
-	return int(mData.map.GetAllPoint().size());
+	return int(mData.map.GetSize());
 }
 
 void CATAM::exportPoint3()
@@ -633,18 +633,19 @@ bool CATAM::setKeyframe(void)
 
 	// select keypoints as new tracks
 	std::vector<int> vnewptID;
-	std::vector<cv::KeyPoint> &vKpt = mData.vKpt;
+	std::vector<cv::KeyPoint> &vKpt = mData.vKpt; // 現在画像のKeyPoint(≒特徴点)
 
 	for (int i = 0, iend = int(vKpt.size()); i < iend; ++i){	// for keypoints
+		// 現在画像のKeyPoint(≒特徴点)でfor文回す
 
 		// check already in track
 		bool foundsame = false;
-		double mindist = double(PARAMS.PROJERR* 2.0f);
+		double mindist = double(PARAMS.PROJERR * 2.0f);
 		int ID = NOID;
 
 		for (std::list<sTrack>::iterator it = mData.vtrack.begin(),
 			itend = mData.vtrack.end(); it != itend; ++it){
-
+			// 現在画像の特徴点と,今までのTrack点(vrack)の最後の点(it->vpt.back())との距離計算
 			double dist = cv::norm(vKpt[i].pt - it->vpt.back());
 
 			if (it->ptID != NOID && dist < mindist){	// if mapped track exists
@@ -723,7 +724,10 @@ int CATAM::trackFrame(void)
 
 	// 最大繰り返し回数=>10回?
 	cv::TermCriteria criteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 10, 0.1);
-	cv::calcOpticalFlowPyrLK(mData.previmg, mGimg, mData.vprevpt, vtracked, vstatus, verror);
+
+//	cv::calcOpticalFlowPyrLK(mData.previmg, mGimg, mData.vprevpt, vtracked, vstatus, verror,
+//			cv::Size(21,21), 1, criteria, 0, 1e-4);
+		cv::calcOpticalFlowPyrLK(mData.previmg, mGimg, mData.vprevpt, vtracked, vstatus, verror); // def
 
 	int count = 0;
 	mData.vprevpt.clear();
@@ -882,9 +886,12 @@ bool CATAM::computePose(void)
 			vpt3d.push_back(mData.map.GetPoint(it->ptID));
 		}
 	}
-
+	// 3次元-2次元の対応点から，物体の姿勢を求めます
+	// 三次元座標, 二次元座標,カメラ内部パラメータA, 歪み係数ベクトル(ベクトル?)D, 出力回転行列R, 並進ベクトルt
+	// 引数最後. useExtrinsicGuess trueの場合，この関数は，与えられた rvec と tvec を，それぞれ回転ベクトルと並進ベクトルの初期近似値として利用し，それらを最適化します．
 	cv::solvePnP(vpt3d, vpt2d, mData.A, mData.D, mPose.rvec, mPose.tvec, true);
 
+	// solvePnpで求めたRtを使って、3次元点群を再投影→2次元座標に
 	// check reprojection error and discard points if error is large
 	std::vector< cv::Point2f > vrepropt;
 	cv::projectPoints(vpt3d, mPose.rvec, mPose.tvec, mData.A, mData.D, vrepropt);
@@ -916,6 +923,7 @@ bool CATAM::computePose(void)
 		LOGE("mWPose is estimated.");
 	}
 
+	//　再投影誤差がPROJERR未満の点がMINPTSより多く存在するなら成功
 	if (numall - numdiscard > PARAMS.MINPTS){
 		return true;
 	}
@@ -932,16 +940,23 @@ bool CATAM::computePose(void)
 @param[out]	rvec	rotation vector
 @param[out]	tvec	translation vector
 */
-void CATAM::computePosefromE(
+void CATAM::computePosefromE (
 	const std::vector<cv::Point2f> &vpt1,
 	const std::vector<cv::Point2f> &vpt2,
 	cv::Mat &rvec,
 	cv::Mat &tvec
 	) const
 {
-	double focal = 1.0;
-	cv::Point2d pp = cv::Point2d(0, 0);
-	int method = cv::LMEDS;
+	// 二画像間でessential matrix推定→回転行列R,並進ベクトルt推定
+
+	// 焦点距離(pixel)
+	double focal = 1.0; // def
+//	double focal = mData.focal;
+	// 光学中心点(pixel)
+	cv::Point2d pp = cv::Point2d(0, 0); //def
+//	cv::Point2d pp = cv::Point2d(mData.A.at<double>(2, 0), mData.A.at<double>(2, 1));
+//	int method = cv::RANSAC;
+	int method = cv::LMEDS; // def
 	double prob = 0.99;
 	double th = 1.0 / mData.focal;
 
@@ -1305,7 +1320,7 @@ bool CATAM::mappingCriteria(void) const
 	cv::Mat pos, mkfPos;
 	pos = -R.inv() * mPose.tvec;
 //	LOGE("size(%d, %d)", pos.rows, pos.cols);
-	LOGE("pos(%f, %f, %f)", pos.at<float>(0, 0), pos.at<float>(1, 0), pos.at<float>(2, 0));
+//	LOGE("pos(%f, %f, %f)", pos.at<float>(0, 0), pos.at<float>(1, 0), pos.at<float>(2, 0));
 	mkfPos = -nkfR.inv() * nkf.pose.tvec;
 
 	double distkeyframe = cv::norm(pos - mkfPos);

@@ -303,7 +303,13 @@ const cv::Point3f& CMapData::GetPoint(const int id) const
 }
 
 std::vector<cv::Point3f> CMapData::GetAllPoint() {
-	return mvPt;
+	std::vector<cv::Point3f> tmpPt;
+
+	mMapMutex.lock();
+	copy(mvPt.begin(), mvPt.end(), back_inserter(tmpPt));
+	mMapMutex.unlock();
+
+	return tmpPt;
 }
 
 /*!
@@ -366,9 +372,13 @@ void CMapData::GetGoodPoseforRelocalization(sPose &pose) const
 @brief			return map size
 @retval			map size
 */
-int CMapData::GetSize(void) const
+int CMapData::GetSize(void)
 {
-	return int(mvPt.size());
+	mMapMutex.lock();
+	int size = int(mvPt.size());
+	mMapMutex.unlock();
+
+	return size;
 }
 
 /*!
@@ -376,19 +386,26 @@ int CMapData::GetSize(void) const
 */
 sATAMParams::sATAMParams()
 {
-	MAXPTS = 400;
-	LEVEL = 2;
-	DESCDIST = 50.f;
+	MAXPTS = 400;		// ORBの最大検出ポイント数
+	LEVEL = 2;			// ORBのレベル
+	DESCDIST = 50.f;	// matchKeyframe()時の許容対応点距離(DESCDIST以上離れるとout)
 
-	BASEANGLE = 5.0;
-	BAKEYFRAMES = 4;
+	BASEANGLE = 5.0;	//
+	BAKEYFRAMES = 4;	//
 
+	// solvePnPの結果と再投影時の点の誤差許容範囲
 	PROJERR = 3.f;
-	MINPTS = 20;
-	PATCHSIZE = 17;
+	// 最低トラッキングポイント数(オプティカルフローが正しく計算出来た点がMINPTS未満だとrelocal)
+	MINPTS = 20; // def
+//	MINPTS = 10;
+	// オプティカルフローや3次元点→2次元点に写像された点が画像内に存在するかに使う.
+	// 画像外枠からPATCHSIZE*2分離れた四角枠内にある点のみ「画像内に存在する」とする
+//	PATCHSIZE = 10;
+	PATCHSIZE = 17; // def
+	// matchKeyframe()のsolvePnPRansac()時の目標inlier率(inliers/all)
 	MATCHKEYFRAME = 0.4f;
 
-	GOODINIT = 0.9f;
+	GOODINIT = 0.9f; // initialのmakeMap()時の目標inlier率(inliers/all)
 	RELOCALHIST = 5;
 
 //	VIDEONAME = strData + "movie.avi";

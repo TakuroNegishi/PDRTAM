@@ -18,7 +18,7 @@
 //#include <ceres/ceres.h>
 
 //#ifdef WITHBA
-//#include "cvsba.h"
+//#include "cvsba/cvsba.h"
 //#endif
 
 /*!

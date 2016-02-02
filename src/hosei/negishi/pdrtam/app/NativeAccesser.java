@@ -42,8 +42,10 @@ public class NativeAccesser {
 		setResetNative();
 	}
 	
-	public void getPointAry(int num, float[] pointAry) {
-		getPointAryNative(num, pointAry);
+	public float[] getPointAry() {
+		float[] pointAry = new float[getPointLength()];
+		getPointAryNative(pointAry.length, pointAry);
+		return pointAry;
 	}
 	
 	public int getPointLength() {
@@ -54,21 +56,6 @@ public class NativeAccesser {
 		// TODO
 	}
 	
-	// GLRender
-	
-	/**  */
-	public void onSurfaceCreated() {
-		onSurfaceCreatedNative();
-	}
-	
-	public void onSurfaceChanged(int width, int height) {
-		onSurfaceChangedNative(width, height);
-	}
-	
-	public void onDrawFrame() {
-		onDrawFrameNative();
-	}
-	
 	// ATAM
 	public native void initNative();
 	public native void mainProcNative(long matAddrRgba);
@@ -77,9 +64,4 @@ public class NativeAccesser {
 	public native void setResetNative();
 	public native void getPointAryNative(int num, float[] pointAry);
 	public native int getPointLengthNative();
-	
-	// GLRender
-    public native void onSurfaceCreatedNative();
-    public native void onSurfaceChangedNative(int width, int height);
-    public native void onDrawFrameNative();
 }

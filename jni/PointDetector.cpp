@@ -37,7 +37,8 @@ void CPointDetector::Init(
 	)
 {
 	//	int threshold = 10,	bool nonmaxSuppression = true, int 	type = FastFeatureDetector::TYPE_9_16)
-	mFASTDetector = cv::FastFeatureDetector::create(60, true, cv::FastFeatureDetector::TYPE_9_16);
+	mFASTDetector = cv::FastFeatureDetector::create(60, false, cv::FastFeatureDetector::TYPE_9_16);
+//	mFASTDetector = cv::FastFeatureDetector::create(60, true, cv::FastFeatureDetector::TYPE_7_12);
 //	mDetector = cv::FastFeatureDetector::create();
 
 	mORBDetector = cv::ORB::create(numpts, 1.2f, numlevel);

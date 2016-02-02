@@ -14,12 +14,13 @@ import javax.microedition.khronos.opengles.GL10;
 import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
+import android.util.Log;
 
 /**
  * OpenGL用のRender
  */
 public class GLRender implements GLSurfaceView.Renderer {
-	private static final int MOVE_THRESHOLD = 200;
+	private static final int MOVE_THRESHOLD = 70;
 	private static final int PINCH_RATIO = 22;
 	private static final float ROTATE_RATIO = 0.6f;
 	
@@ -47,7 +48,8 @@ public class GLRender implements GLSurfaceView.Renderer {
 
 	public GLRender() {
 		originalVertex = new float[0];
-		eye = new Vector3D(30.0f, 30.0f, 30.0f);
+//		eye = new Vector3D(30.0f, 30.0f, 30.0f);
+		eye = new Vector3D(0.0f, 0.0f, 30.0f);
 		center = new Vector3D(0.0f, 0.0f, 0.0f);
 		rotate = new Vector3D(0.0f, 0.0f, 0.0f);
 //		rotAxis = new Vector3D(0.0f, 0.0f, 0.0f);
@@ -110,6 +112,9 @@ public class GLRender implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl) {
+//		 ATAMから点群を取得
+//		NativeAccesser.getInstance().getPointAry();
+		
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
@@ -124,6 +129,11 @@ public class GLRender implements GLSurfaceView.Renderer {
 		gl.glMatrixMode(GL10.GL_MODELVIEW);
 		gl.glLoadIdentity();
 
+		// 3軸描画
+		gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY); // テクスチャ無効化
+		float[] c = { 0.0f, 0.0f, 1.0f, 1.0f };
+		drawAxis(gl, c);
+		
 		// 指定行列を生成
 //		rotateX += rotateVX;
 //		rotateY += rotateVY;
@@ -135,8 +145,7 @@ public class GLRender implements GLSurfaceView.Renderer {
 //		gl.glRotatef(0.1f, rotAxis.x, rotAxis.y, rotAxis.z);
 
 		// 3軸描画
-		gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY); // テクスチャ無効化
-		float[] c = { 0.0f, 0.0f, 1.0f, 1.0f };
+		c[0] = 0.0f; c[1] = 0.0f; c[2] = 1.0f; c[3] = 1.0f;
 		drawAxis(gl, c);
 
 		// 点群描画
@@ -205,7 +214,7 @@ public class GLRender implements GLSurfaceView.Renderer {
 		drawLine(gl, v, c); // 赤:Z軸
 	}
 
-	private void drawTriangleTexture(GL10 gl, float[] scaledVertex) {
+	public void drawTriangleTexture(GL10 gl, float[] scaledVertex) {
 		gl.glEnable(GL10.GL_TEXTURE_2D); // テクスチャ機能の有効化
 		gl.glBindTexture(GL10.GL_TEXTURE_2D, textureID); // テクスチャオブジェクトの指定
 		// 　ポリゴンの頂点の色
@@ -437,10 +446,16 @@ public class GLRender implements GLSurfaceView.Renderer {
 		
 		float diffX = touchX - prevTouchX;
 		float diffY = touchY - prevTouchY;
-		if (diffX < MOVE_THRESHOLD && diffX > -MOVE_THRESHOLD) // 瞬間移動を防ぐ
-			rotate.y += (touchX - prevTouchX) * ROTATE_RATIO;
-		if (diffY < MOVE_THRESHOLD && diffY > -MOVE_THRESHOLD) // 瞬間移動を防ぐ
-			rotate.x += (touchY - prevTouchY) * ROTATE_RATIO;
+		if (diffX < MOVE_THRESHOLD && diffX > -MOVE_THRESHOLD) { // 瞬間移動を防ぐ
+//			if (diffX < 1) diffX = 0;
+			rotate.y += diffX * ROTATE_RATIO;
+			Log.e("", "diffX = " + diffX);
+		}
+		if (diffY < MOVE_THRESHOLD && diffY > -MOVE_THRESHOLD) { // 瞬間移動を防ぐ
+//			if (diffY < 1) diffY = 0;
+			rotate.x -= diffY * ROTATE_RATIO;
+			Log.e("", "diffY = " + diffY);
+		}
 		
 		prevTouchX = touchX;
 		prevTouchY = touchY;

@@ -110,7 +110,7 @@ public:
 
 	void GetPoseforRelocalization(sPose &pose) const;
 	void GetGoodPoseforRelocalization(sPose &pose) const;
-	int GetSize(void) const;
+	int GetSize(void);
 
 private:
 	std::vector<cv::Point3f> mvPt;	//!< 3D points in map
